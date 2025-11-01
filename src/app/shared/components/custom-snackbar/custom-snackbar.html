@@ -1,0 +1,21 @@
+<div class="custom-snackbar-container">
+  <div class="snackbar-icon">
+    <img [src]="icon()" [alt]="data.tipo" class="icon-image">
+  </div>
+  
+  <div class="content">
+    <div class="title">{{ data.titulo }}</div>
+    <div class="message">{{ data.mensagem }}</div>
+  </div>
+  
+  <button 
+    class="close-button" 
+    (click)="fechar()" 
+    aria-label="Fechar notificação"
+    type="button"
+  >
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L10 9.293l4.646-4.647a.5.5 0 0 1 .708.708L10.707 10l4.647 4.646a.5.5 0 0 1-.708.708L10 10.707l-4.646 4.647a.5.5 0 0 1-.708-.708L9.293 10 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+    </svg>
+  </button>
+</div>

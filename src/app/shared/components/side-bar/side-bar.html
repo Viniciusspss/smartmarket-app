@@ -1,0 +1,60 @@
+<aside class="w-64 bg-white text-black  flex flex-col justify-between h-full border-r border-gray-200">
+    <div>
+        <div class="flex gap-2 mb-2 border-b border-gray-200 py-4 px-4">
+            <img src="assets/icons/cart.svg" alt="Logo">
+            <p class="text-xl">SuperMarket</p>
+        </div>
+        <div class="gap-2 flex flex-col px-4">
+            <app-aside-items text="Dashboard" image="assets/icons/dashboard"
+                [selected]="selectedButton() == '/dashboard'" (click)="selectButton('Dashboard')"></app-aside-items>
+
+            <app-aside-items text="Produtos" image="assets/icons/products" [selected]="selectedButton() == '/products'"
+                (click)="selectButton('Products')"></app-aside-items>
+
+            <app-aside-items text="Promoções" image="assets/icons/promotion"
+                [selected]="selectedButton() == '/promotions'" (click)="selectButton('Promotions')"></app-aside-items>
+
+            <app-aside-items text="Funcionários" image="assets/icons/employee"
+                [selected]="selectedButton() == '/employees'" (click)="selectButton('Employees')"></app-aside-items>
+
+            <app-aside-items text="Clientes" image="assets/icons/clients" [selected]="selectedButton() == '/clients'"
+                (click)="selectButton('Clients')"></app-aside-items>
+        </div>
+    </div>
+
+    <div class="border-t border-gray-200 flex gap-3 items-center p-5 justify-between ">
+        <div class="flex gap-1 justify-center items-center">
+            <div
+                class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg font-semibold">
+                <p>A</p>
+            </div>
+            <div class="flex flex-col justify-center">
+                <p class="font-bold text-sm leading-tight">Admin User</p>
+                <p class="text-[10px] text-gray-300 leading-tight">Administrador</p>
+            </div>
+        </div>
+        <button class="cursor-pointer" (click)="changeModal()">
+            <img src="assets/icons/logout.svg">
+        </button>
+    </div>
+
+    @if (modalOpen()) {
+    <div class="fixed inset-0 bg-black opacity-20 z-1" (click)="changeModal()"></div>
+    }
+    @if (modalOpen()) {
+    <div
+        class="z-2 bg-white text-black fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-2xl p-6 pb-2 rounded-2xl flex flex-col gap-10 border-gray-200 border-2">
+        <mat-dialog-content class="flex flex-col gap-2 text-center">
+            <p class="text-xl font-bold">Tem certeza que deseja sair?</p>
+            <p class="text-sm text-gray-300">Você será redirecionado para a tela de login</p>
+        </mat-dialog-content>
+        <mat-dialog-actions class="flex gap-2 w-full justify-end">
+            <button matButton (click)="changeModal()"
+                class="transition bg-white text-red-500 cursor-pointer border-2 p-2 rounded-xl min-w-18 hover:text-white hover:bg-red-500">Não</button>
+            <button matButton (click)="logout()"
+                class="transition hover:cursor-pointer border-emerald-400 border-2 bg-emerald-400 text-white p-2 rounded-2xl min-w-18 hover:bg-white hover:text-emerald-400"
+                cdkFocusInitial>Sim</button>
+        </mat-dialog-actions>
+    </div>
+    }
+</aside>

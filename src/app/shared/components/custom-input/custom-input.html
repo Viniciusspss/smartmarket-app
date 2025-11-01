@@ -1,0 +1,56 @@
+<div class="custom-input-container">
+  <div class="custom-input-wrapper" [class.focused]="currentInputState === 'focused'"
+    [class.filled]="currentInputState === 'filled'" [class.error]="currentInputState === 'error'"
+    [class.disabled]="currentInputState === 'disabled'">
+    @if (icon() && icon()?.position === 'left') {
+    <div class="input-icon left-icon" [class.clickable]="icon()?.clickable" (click)="onIconClick()">
+    </div>
+    }
+
+    <div class="input-field-container">
+      <input [type]="inputType" [value]="value" [placeholder]="placeholder()" [disabled]="disabled()"
+        [required]="required()" class="custom-input" (input)="onInput($event)" (focus)="onFocus()" (blur)="onBlur()" />
+
+      @if (label()) {
+      <label class="floating-label" [class.active]="isFocused || (value && value.length > 0)">
+        {{ label() }}
+      </label>
+      }
+    </div>
+
+    <div class="right-icons">
+      @if (showPasswordToggle() && type() === 'password') {
+      <button type="button" class="input-icon right-icon password-toggle" (click)="onPasswordToggle()"
+        [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
+        <img [src]="showPassword ? 'assets/icons/eye.png' : 'assets/icons/no-eye.png'" alt="Toggle password visibility"
+          class="icon-image">
+      </button>
+      }
+
+      @if (showClearButton() && value && currentInputState !== 'disabled') {
+      <button type="button" class="input-icon right-icon clear-button" (click)="onClearClick()"
+        aria-label="Limpar campo">
+        <img src="assets/icons/close.svg" alt="Limpar" class="icon-image">
+      </button>
+      }
+
+      @if (currentInputState === 'error') {
+      <div class="input-icon right-icon error-icon" aria-label="Erro">
+        <img src="assets/icons/error.svg" alt="Erro" class="icon-image">
+      </div>
+      }
+
+      @if (icon() && icon()?.position === 'right') {
+      <div class="input-icon right-icon" [class.clickable]="icon()?.clickable" (click)="onIconClick()">
+        <img [src]="'assets/icons/' + icon()?.name + '.svg'" [alt]="icon()?.name" class="icon-image">
+      </div>
+      }
+    </div>
+  </div>
+
+  @if (helperText() || errorMessage()) {
+  <div class="input-helper-text">
+    {{ errorMessage() || helperText() }}
+  </div>
+  }
+</div>

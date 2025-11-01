@@ -1,0 +1,31 @@
+<button
+  [type]="type()"
+  [class]="buttonClasses()"
+  [style]="buttonStyles()"
+  [disabled]="disabled() || loading()"
+  (click)="onClick($event)"
+>
+  @if (loading()) {
+    <div class="button-spinner">
+      <div class="spinner"></div>
+    </div>
+  }
+
+  @if (icon() && iconPosition() === 'left' && !loading()) {
+    <div class="button-icon button-icon--left">
+      <img [src]="'assets/icons/' + icon() + '.svg'" [alt]="icon()" class="icon-image">
+    </div>
+  }
+
+  @if (!loading()) {
+    <span class="button-content">
+      <ng-content></ng-content>
+    </span>
+  }
+
+  @if (icon() && iconPosition() === 'right' && !loading()) {
+    <div class="button-icon button-icon--right">
+      <img [src]="'assets/icons/' + icon() + '.svg'" [alt]="icon()" class="icon-image">
+    </div>
+  }
+</button>

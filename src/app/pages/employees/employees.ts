@@ -11,14 +11,12 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-employees',
   imports: [
-    [
-      MatTableModule,
-      MatPaginatorModule,
-      MatIconModule,
-      MatButtonModule,
-      MatTooltipModule,
-      CommonModule,
-    ],
+    MatTableModule,
+    MatPaginatorModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    CommonModule,
   ],
   templateUrl: './employees.html',
 })

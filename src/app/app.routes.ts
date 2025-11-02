@@ -4,6 +4,7 @@ import { Dashboard } from './pages/dashboard/dashboard';
 import { DashboardLayout } from './layouts/dashboard-layout/dashboard-layout';
 import { Products } from './pages/products/products';
 import { Employees } from './pages/employees/employees';
+import { Clients } from './pages/clients/clients';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'products', component: Products },
       { path: 'employees', component: Employees },
+      { path: 'clients', component: Clients },
     ],
     // canActivate: [PublicGuard],
   },

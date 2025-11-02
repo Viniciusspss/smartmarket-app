@@ -24,4 +24,12 @@ export class Products {
 
   protected editProduct(productId: number) {}
   protected deleteProduct(productId: number) {}
+
+  applyFilter(event: string) {
+    this.dataSource.filter = event.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
 }

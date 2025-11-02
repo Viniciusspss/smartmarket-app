@@ -11,7 +11,7 @@
 
     <div class="relative mb-14">
         <img src="assets/icons/search.svg" class="absolute ml-3 mt-3.5 w-5 h-5 opacity-50" />
-        <input type="text" placeholder="Buscar produtos..."
+        <input type="text" placeholder="Buscar produtos..." (input)="applyFilter($event.target.value)"
             class="absolute w-full pl-10 p-3 border border-gray-100 rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-950" />
     </div>
 

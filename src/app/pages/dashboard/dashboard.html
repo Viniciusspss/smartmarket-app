@@ -1,3 +1,16 @@
-<div class="w-full flex-1 h-screen">
-    <p></p>
+<div class="w-full flex-1 flex h-full flex-col gap-8 ">
+    <div>
+        <h1 class="font-bold text-xl tracking-wide">Dashboard</h1>
+        <h3 class="text-gray-300 text-sm">Visão geral do sistema</h3>
+    </div>
+    <div class="grid grid-cols-4 gap-4">
+        <app-stats-card title="Total de Produtos" description="Produtos cadastrados" image="products"
+            number="1,284"></app-stats-card>
+        <app-stats-card title="Promoções Ativas" description="Promoções Ativas" image="promotion"
+            number="23"></app-stats-card>
+        <app-stats-card title="Funcionários" description="Funcionários Ativos" image="employee"
+            number="47"></app-stats-card>
+        <app-stats-card title="Clientes" description="Clientes cadastrados" image="clients"
+            number="8,432"></app-stats-card>
+    </div>
 </div>

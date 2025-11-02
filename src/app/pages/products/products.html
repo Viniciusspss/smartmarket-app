@@ -15,7 +15,7 @@
             class="absolute w-full pl-10 p-3 border border-gray-100 rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-950" />
     </div>
 
-    <div class="mat-elevation-z8 bg-white rounded-2xl border border-gray-200 overflow-hidden font-poppins">
+    <div class="mat-elevation-z8  rounded-2xl border border-gray-200 overflow-hidden font-poppins">
         <table mat-table [dataSource]="dataSource">
 
             <ng-container matColumnDef="name">
@@ -70,7 +70,7 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
 
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+        <mat-paginator class="mat-paginator" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
             aria-label="Select page of periodic elements">
         </mat-paginator>
     </div>

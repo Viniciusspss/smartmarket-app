@@ -11,10 +11,12 @@ body {
   height: 100%;
 }
 
+.mat-paginator,
 .mat-mdc-table,
 .mat-mdc-header-cell,
 .mat-mdc-cell {
   font-family: 'Poppins', sans-serif !important;
+  background-color: white !important;
 }
 .mat-mdc-header-cell,
 .mat-mdc-cell {

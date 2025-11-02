@@ -11,6 +11,16 @@ body {
   height: 100%;
 }
 
+.mat-mdc-table,
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  font-family: 'Poppins', sans-serif !important;
+}
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  border-bottom: solid 1px var(--color-gray-200) !important;
+}
+
 @theme {
   --font-poppins: 'Poppins', sans-serif;
 

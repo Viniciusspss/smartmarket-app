@@ -1,10 +1,17 @@
-<section class="bg-gray-950 ">
-    <div class="flex min-h-screen">
+<section class="bg-[#F6F7F9]">
+    <div class="flex">
 
         <app-side-bar [user]="user()!"></app-side-bar>
 
-        <div class="flex-1 bg-gray-50 p-4">
-            <router-outlet></router-outlet>
+        <div class="flex-1 flex-col h-screen">
+            <div class="flex w-full flex-col bg-white py-4 px-4 border-b border-gray-200 h-16 justify-center ">
+                <h1 class="font-semibold text-xl tracking-wide">Sistema Administrativo</h1>
+                <p class="text-gray-500 text-[12px]">Gerencie seu supermercado</p>
+            </div>
+
+            <div class=" bg-[#F6F7F9] p-4">
+                <router-outlet></router-outlet>
+            </div>
         </div>
     </div>
 

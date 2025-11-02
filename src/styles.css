@@ -23,6 +23,10 @@ body {
   border-bottom: solid 1px var(--color-gray-200) !important;
 }
 
+.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
+  background-color: transparent !important;
+}
+
 @theme {
   --font-poppins: 'Poppins', sans-serif;
 

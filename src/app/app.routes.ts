@@ -3,6 +3,7 @@ import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { DashboardLayout } from './layouts/dashboard-layout/dashboard-layout';
 import { Products } from './pages/products/products';
+import { Employees } from './pages/employees/employees';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,7 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: Dashboard },
       { path: 'products', component: Products },
+      { path: 'employees', component: Employees },
     ],
     // canActivate: [PublicGuard],
   },

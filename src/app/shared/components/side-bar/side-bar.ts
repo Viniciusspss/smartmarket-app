@@ -25,7 +25,7 @@ export class SideBar {
       this.router.navigateByUrl('products');
     }
     if (buttonName == 'Promotions') {
-      this.router.navigateByUrl('promotions');
+      this.router.navigateByUrl('promotion');
     }
     if (buttonName == 'Employees') {
       this.router.navigateByUrl('employees');

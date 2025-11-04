@@ -1,0 +1,25 @@
+<div class="w-full flex-1 flex h-full flex-col gap-8">
+    <div class="flex w-full justify-between items-center">
+        <div>
+            <h1 class="font-bold text-2xl tracking-wide">Promoções</h1>
+            <h3 class="text-gray-300 text-sm">Gerencie as promoções ativas</h3>
+        </div>
+        <button class="flex gap-2 rounded-2xl bg-primary-950 p-3 text-white items-center">
+            <img src="assets/icons/promotion-white.svg" alt="">
+            <p>Nova Promoção</p>
+        </button>
+    </div>
+
+
+    <div class="grid grid-cols-4 gap-2">
+        <app-promotion-card name="Arroz Integral 5kg" [originalPrice]="150.00" [promotionalPrice]="99.99"
+            [active]="true"></app-promotion-card>
+        <app-promotion-card name="Leite Integral 1L" [originalPrice]="5.20" [promotionalPrice]="4.50"
+            [active]="true"></app-promotion-card>
+        <app-promotion-card name="Refrigerante 2L" [originalPrice]="8.90" [promotionalPrice]="7.50"
+            [active]="true"></app-promotion-card>
+        <app-promotion-card name="Feijão Preto 1Kg" [originalPrice]="6.90" [promotionalPrice]="5.50"
+            [active]="true"></app-promotion-card>
+    </div>
+
+</div>

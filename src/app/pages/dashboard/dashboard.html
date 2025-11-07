@@ -3,43 +3,37 @@
         <h1 class="font-bold text-2xl tracking-wide">Dashboard</h1>
         <h3 class="text-gray-300 text-sm">Visão geral do sistema</h3>
     </div>
+    @if (products()) {
+
     <div class="grid grid-cols-3 gap-4">
         <app-stats-card title="Total de Produtos" description="Produtos cadastrados" image="products"
-            number="1,284"></app-stats-card>
+            [number]="products().length.toString()"></app-stats-card>
         <app-stats-card title="Promoções Ativas" description="Promoções Ativas" image="promotion"
-            number="23"></app-stats-card>
+            [number]="qtdPromotions().toString()"></app-stats-card>
         <app-stats-card title="Funcionários" description="Funcionários Ativos" image="employee"
-            number="47"></app-stats-card>
+            [number]="employees().length.toString()"></app-stats-card>
 
     </div>
 
     <div class="flex gap-4">
         <div class="flex flex-col rounded-2xl bg-white p-4 border border-gray-200 gap-4 w-1/2 px-4 py-6">
-            <h2 class="text-xl font-semibold">Produtos mais vendidos</h2>
+            <h2 class="text-xl font-semibold">Produtos com maior quantidade de estoque</h2>
             <div class="flex flex-col gap-2">
+                @for (product of getTopStockProducts(); track $index) {
                 <div class="flex w-full justify-between border-b border-gray-100 pb-2">
-                    <p>Arroz Integral 5kg</p>
-                    <p>1,245 unidades</p>
+                    <p>{{product.name}}</p>
+                    <p>{{product.stockQuantity}} unidades</p>
                 </div>
-                <div class="flex w-full justify-between border-b border-gray-100 pb-2">
-                    <p>Feijão Preto 1kg</p>
-                    <p>987 unidades</p>
-                </div>
-                <div class="flex w-full justify-between border-b border-gray-100 pb-2">
-                    <p>Leite Integral 1L</p>
-                    <p>856 unidades</p>
-                </div>
-                <div class="flex w-full justify-between  pb-2">
-                    <p>Óleo de Soja 900ml</p>
-                    <p>743 unidades</p>
-                </div>
+                }
             </div>
         </div>
 
         <div class="flex flex-col rounded-2xl bg-white p-4 border border-gray-200 gap-4 w-1/2 px-4 py-6">
-            <h2 class="text-xl font-semibold">Distribuição de Vendas</h2>
-            <app-donut-chart [data]="chartData"></app-donut-chart>
+            <h2 class="text-xl font-semibold">Distribuição de estoque</h2>
+            <app-donut-chart [products]="getTopStockProducts()"></app-donut-chart>
         </div>
-
     </div>
+
+    }
+
 </div>

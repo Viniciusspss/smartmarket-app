@@ -1,4 +1,4 @@
-import { Component, input, Input, OnInit } from '@angular/core';
+import { Component, computed, input, Input, OnInit, signal } from '@angular/core';
 import {
   ApexNonAxisChartSeries,
   ApexResponsive,
@@ -8,6 +8,7 @@ import {
   ApexDataLabels,
   ChartComponent,
 } from 'ng-apexcharts';
+import { Product } from '../../models/product';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -26,13 +27,14 @@ export type ChartOptions = {
   imports: [ChartComponent],
 })
 export class DonutChartComponent implements OnInit {
-  data = input.required<number[]>();
-  labels: string[] = [
-    'Arroz Integral 5kg',
-    'Feijão Preto 1kg',
-    'Leite Integral 1L',
-    'Óleo de Soja 900ml',
-  ];
+  products = input.required<Product[]>();
+
+  //array de numero
+  protected data = computed(() => this.products().map((p) => p.stockQuantity));
+
+  //array de nomes
+  protected labels = computed(() => this.products().map((p) => p.name));
+
   colors: string[] = ['#9A7A41', '#2E8B57', '#4682B4', '#DAA520'];
 
   public chartOptions!: Partial<ChartOptions>;
@@ -48,7 +50,7 @@ export class DonutChartComponent implements OnInit {
         type: 'donut',
         height: 350,
       },
-      labels: this.labels,
+      labels: this.labels(),
       colors: this.colors,
       plotOptions: {
         pie: {

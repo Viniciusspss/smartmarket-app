@@ -1,8 +1,13 @@
 export interface Product {
-  id: number;
+  productId?: string;
   name: string;
+  description: string;
   type: string;
-  price: string;
-  pricePromotion: string;
-  status: string;
+  priceInCents: number;
+  promoInCents?: number;
+  promoActive: boolean;
+  promoStartsAt?: Date;
+  promoEndsAt?: Date;
+  stockQuantity: number;
+  expiresAt?: Date;
 }

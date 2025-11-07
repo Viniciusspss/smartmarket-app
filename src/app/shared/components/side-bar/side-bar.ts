@@ -1,6 +1,5 @@
 import { Component, inject, input, signal } from '@angular/core';
-import { AuthService } from '../../../service/auth/auth.service';
-import { UserData } from '../../../service/customer/customer.service';
+import { AuthService } from '../../../service/auth.service';
 import { Router } from '@angular/router';
 import { AsideItems } from '../aside-items/aside-items';
 import { MatDialogActions, MatDialogContent } from '@angular/material/dialog';
@@ -14,7 +13,6 @@ import { MatInputModule } from '@angular/material/input';
 export class SideBar {
   private router = inject(Router);
   private authService = inject(AuthService);
-  public user = input.required<UserData>();
   protected modalOpen = signal<boolean>(false);
 
   selectButton(buttonName: 'Dashboard' | 'Products' | 'Promotions' | 'Employees' | 'Clients') {

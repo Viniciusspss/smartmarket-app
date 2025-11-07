@@ -1,8 +1,8 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../service/auth/auth.service';
-import { NotificationService } from '../../service/notification/notification.service';
+import { AuthService } from '../../service/auth.service';
+import { NotificationService } from '../../service/notification.service';
 import { finalize } from 'rxjs';
 import { CustomInputComponent } from '../../shared/components/custom-input/custom-input';
 import { CustomButtonComponent } from '../../shared/components/custom-button/custom-button';

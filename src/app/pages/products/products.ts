@@ -101,7 +101,6 @@ export class Products implements OnInit, AfterViewInit {
       next: (response: any) => {
         const productList = Array.isArray(response) ? response : response.products ?? [];
 
-        console.log('Produtos carregados:', productList);
         this.dataSource.data = productList;
         this.dataSource._updateChangeSubscription();
       },

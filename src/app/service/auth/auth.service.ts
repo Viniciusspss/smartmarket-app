@@ -17,9 +17,8 @@ interface UserData {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/auth';
+  private readonly API_URL = 'http://localhost:8080/accounts';
   private readonly TOKEN_KEY = 'accessToken';
-  private readonly EXPIRY_KEY = 'tokenExpiry';
 
   private http = inject(HttpClient);
   private router = inject(Router);
@@ -63,10 +62,7 @@ export class AuthService {
   }
 
   private setAuthData(response: LoginSuccessResponse): void {
-    const expiryTimestamp = Date.now() + response.expiresIn * 1000;
-
     localStorage.setItem(this.TOKEN_KEY, response.accessToken);
-    localStorage.setItem(this.EXPIRY_KEY, expiryTimestamp.toString());
 
     this.isLoggedIn.set(true);
     this.currentUser.set(this.getUserFromToken());
@@ -74,7 +70,6 @@ export class AuthService {
 
   private clearAuth(): void {
     localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.EXPIRY_KEY);
     this.isLoggedIn.set(false);
     this.currentUser.set(null);
     this.router.navigate(['/login']);
@@ -86,19 +81,6 @@ export class AuthService {
 
   private hasValidToken(): boolean {
     if (!this.hasToken()) return false;
-
-    const expiryTime = localStorage.getItem(this.EXPIRY_KEY);
-    if (!expiryTime) {
-      this.clearAuth();
-      return false;
-    }
-
-    const isExpired = Date.now() >= parseInt(expiryTime, 10);
-
-    if (isExpired) {
-      this.clearAuth();
-      return false;
-    }
 
     return true;
   }

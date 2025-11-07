@@ -2,76 +2,219 @@
     <div class="flex w-full justify-between items-center">
         <div>
             <h1 class="font-bold text-2xl tracking-wide">Produtos</h1>
-            <h3 class="text-gray-300 text-sm">Gerencie o catálogo de produtos</h3>
+            <h3 class="text-gray-300 text-sm">Gerencie os produtos do sistema</h3>
         </div>
-        <button class="rounded-2xl bg-primary-950 p-3 text-white">
+        <button class="rounded-2xl bg-primary-950 p-3 text-white cursor-pointer hover:bg-primary-900 transition-colors"
+            (click)="openModal()">
             + Adicionar Produto
         </button>
     </div>
 
-    <div class="relative mb-14">
-        <img src="assets/icons/search.svg" class="absolute ml-3 mt-3.5 w-5 h-5 opacity-50" />
-        <input type="text" placeholder="Buscar produtos..." (input)="applyFilter($event.target.value)"
-            class="absolute w-full pl-10 p-3 border border-gray-100 rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-950" />
-    </div>
-
-    <div class="mat-elevation-z8  rounded-2xl border border-gray-200 overflow-hidden font-poppins">
+    @if (dataSource) {
+    <div class="mat-elevation-z8 rounded-2xl border border-gray-200 overflow-hidden font-poppins">
         <table mat-table [dataSource]="dataSource">
 
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Nome </th>
-                <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+                <td mat-cell *matCellDef="let element"> {{ element.name }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef> Descrição </th>
+                <td mat-cell *matCellDef="let element"> {{ element.description }} </td>
             </ng-container>
 
             <ng-container matColumnDef="type">
                 <th mat-header-cell *matHeaderCellDef> Tipo </th>
-                <td mat-cell *matCellDef="let element"> {{element.type }} </td>
+                <td mat-cell *matCellDef="let element"> {{ element.type }} </td>
             </ng-container>
 
-            <ng-container matColumnDef="price">
+            <ng-container matColumnDef="priceInCents">
                 <th mat-header-cell *matHeaderCellDef> Preço </th>
-                <td mat-cell *matCellDef="let element"> {{element.price}} </td>
+                <td mat-cell *matCellDef="let element"> R$ {{ element.priceInCents / 100 | number:'1.2-2' }} </td>
             </ng-container>
 
-            <ng-container matColumnDef="pricePromotion">
-                <th mat-header-cell *matHeaderCellDef> Preço Promoção </th>
-                <td mat-cell *matCellDef="let element"> {{element.pricePromotion}} </td>
+            <ng-container matColumnDef="promoActive">
+                <th mat-header-cell *matHeaderCellDef> Em Promoção </th>
+                <td mat-cell *matCellDef="let element">
+                    {{ element.promoActive ? 'Sim' : 'Não' }}
+                </td>
             </ng-container>
 
-            <ng-container matColumnDef="stats">
-                <th mat-header-cell *matHeaderCellDef> Status </th>
-                <td mat-cell *matCellDef="let element">@if (element.status == "Em Promoção") { <span
-                        class="bg-green-500 text-white text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">{{element.status}}</span>
-                    } @else { <span
-                        class="bg-gray-100 text-gray-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">{{element.status}}</span>
-                    } </td>
+            <ng-container matColumnDef="stockQuantity">
+                <th mat-header-cell *matHeaderCellDef> Estoque </th>
+                <td mat-cell *matCellDef="let element"> {{ element.stockQuantity }} </td>
             </ng-container>
 
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Ações </th>
-                <div class="flex gap-2">
-                    <td mat-cell *matCellDef="let element">
-                        <div class="flex gap-2">
-                            <button mat-icon-button color="primary" (click)="editProduct(element.id)"
-                                matTooltip="Editar produto">
-                                <mat-icon>edit</mat-icon>
-                            </button>
-
-                            <button mat-icon-button color="warn" (click)="deleteProduct(element.id)"
-                                matTooltip="Excluir produto">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                        </div>
-                    </td>
-                </div>
+            <ng-container matColumnDef="expiresAt">
+                <th mat-header-cell *matHeaderCellDef> Data de Validade </th>
+                <td mat-cell *matCellDef="let element">
+                    {{ element.expiresAt ? (element.expiresAt | date:'dd/MM/yyyy') : 'Não definida' }}
+                </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
 
-        <mat-paginator class="mat-paginator" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
-            aria-label="Select page of periodic elements">
+        <mat-paginator class="mat-paginator" [pageSizeOptions]="[5, 10, 20]" [length]="dataSource.data.length"
+            showFirstLastButtons>
         </mat-paginator>
     </div>
+    }
+
+    @if (showModal()) {
+    <div class="fixed inset-0 bg-[#00000041] bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-lg">Adicionar Novo Produto</h3>
+                <button (click)="closeModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Nome *</label>
+                    <input type="text" formControlName="name"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors">
+                    @if (productForm.get('name')?.invalid && productForm.get('name')?.touched) {
+                    <small class="text-red-500 text-xs mt-1">
+                        @if (productForm.get('name')?.errors?.['required']) {
+                        Nome é obrigatório
+                        }
+                        @if (productForm.get('name')?.errors?.['minlength']) {
+                        Nome deve ter pelo menos 3 caracteres
+                        }
+                    </small>
+                    }
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Tipo *</label>
+                    <select formControlName="type"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors bg-white">
+                        <option value="">Selecione um tipo</option>
+                        <option value="FOOD">Alimentício (FOOD)</option>
+                        <option value="BEVERAGE">Bebida (BEVERAGE)</option>
+                        <option value="CLEANING">Limpeza (CLEANING)</option>
+                        <option value="HYGIENE">Higiene (HYGIENE)</option>
+                        <option value="OTHER">Outro (OTHER)</option>
+                    </select>
+                    @if (productForm.get('type')?.invalid && productForm.get('type')?.touched) {
+                    <small class="text-red-500 text-xs mt-1">
+                        Selecione um tipo válido
+                    </small>
+                    }
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Preço (R$) *</label>
+                    <input type="number" formControlName="priceInCents"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors"
+                        step="0.01" min="0.01" (input)="onPriceInput($event)">
+                    @if (productForm.get('priceInCents')?.invalid && productForm.get('priceInCents')?.touched) {
+                    <small class="text-red-500 text-xs mt-1">
+                        @if (productForm.get('priceInCents')?.errors?.['required']) {
+                        Preço é obrigatório
+                        }
+                        @if (productForm.get('priceInCents')?.errors?.['min']) {
+                        Preço deve ser maior que zero
+                        }
+                    </small>
+                    }
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Estoque *</label>
+                    <input type="number" formControlName="stockQuantity"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors"
+                        min="0">
+                    @if (productForm.get('stockQuantity')?.invalid && productForm.get('stockQuantity')?.touched) {
+                    <small class="text-red-500 text-xs mt-1">
+                        @if (productForm.get('stockQuantity')?.errors?.['required']) {
+                        Estoque é obrigatório
+                        }
+                        @if (productForm.get('stockQuantity')?.errors?.['min']) {
+                        Estoque não pode ser negativo
+                        }
+                    </small>
+                    }
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Data de Validade *</label>
+                    <input type="date" formControlName="expiresAt"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors"
+                        [min]="today">
+                    @if (productForm.get('expiresAt')?.invalid && productForm.get('expiresAt')?.touched) {
+                    <small class="text-red-500 text-xs mt-1">
+                        Data de validade é obrigatória
+                    </small>
+                    }
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Promoção Ativa</label>
+                    <label class="inline-flex items-center mt-2">
+                        <input type="checkbox" formControlName="promoActive"
+                            class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                        <span class="ml-2 text-sm">Produto em promoção</span>
+                    </label>
+                </div>
+
+                <div class="flex flex-col md:col-span-2">
+                    <label class="text-sm font-medium mb-2">Descrição *</label>
+                    <textarea formControlName="description" rows="3"
+                        class="p-2 border border-gray-300 rounded-lg resize-none focus:border-primary-500 focus:outline-none transition-colors"></textarea>
+                    @if (productForm.get('description')?.invalid && productForm.get('description')?.touched) {
+                    <small class="text-red-500 text-xs mt-1">
+                        @if (productForm.get('description')?.errors?.['required']) {
+                        Descrição é obrigatória
+                        }
+                        @if (productForm.get('description')?.errors?.['minlength']) {
+                        Descrição deve ter pelo menos 5 caracteres
+                        }
+                    </small>
+                    }
+                </div>
+
+                @if (productForm.get('promoActive')?.value) {
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Preço Promocional (R$)</label>
+                    <input type="number" formControlName="promoInCents"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors"
+                        step="0.01" min="0.01" (input)="onPromoPriceInput($event)">
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Início da Promoção</label>
+                    <input type="datetime-local" formControlName="promoStartsAt"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors">
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-medium mb-2">Fim da Promoção</label>
+                    <input type="datetime-local" formControlName="promoEndsAt"
+                        class="p-2 border border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none transition-colors">
+                </div>
+                }
+
+                <div class="flex justify-end gap-3 md:col-span-2 pt-4 border-t border-gray-200">
+                    <button type="button" (click)="closeModal()"
+                        class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="productForm.invalid"
+                        class="bg-primary-950 text-white px-6 py-2 rounded-lg hover:bg-primary-900 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                        Adicionar Produto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
 </div>

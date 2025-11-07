@@ -2,11 +2,11 @@ import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { DashboardLayout } from './layouts/dashboard-layout/dashboard-layout';
-import { Products } from './pages/products/products';
 import { Employees } from './pages/employees/employees';
 import { Promotion } from './pages/promotion/promotion';
 import { PublicGuard } from './core/guard/public.guard';
 import { authGuard } from './core/guard/auth.guard';
+import { Products } from './pages/products/products';
 
 export const routes: Routes = [
   {

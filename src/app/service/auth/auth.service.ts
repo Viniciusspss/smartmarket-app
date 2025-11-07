@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
 interface LoginSuccessResponse {
+  userId: string;
   accessToken: string;
-  expiresIn: number;
 }
 
 interface UserData {
@@ -17,14 +17,13 @@ interface UserData {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/accounts';
+  private readonly API_URL = 'http://localhost:8080/api/accounts';
   private readonly TOKEN_KEY = 'accessToken';
 
   private http = inject(HttpClient);
   private router = inject(Router);
 
   public isLoggedIn = signal<boolean>(this.hasValidToken());
-  public currentUser = signal<UserData | null>(this.getUserFromToken());
   public isAuthenticated = computed(() => this.isLoggedIn());
 
   constructor() {
@@ -56,22 +55,15 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  refreshAuthState(): void {
-    this.isLoggedIn.set(this.hasValidToken());
-    this.currentUser.set(this.getUserFromToken());
-  }
-
   private setAuthData(response: LoginSuccessResponse): void {
     localStorage.setItem(this.TOKEN_KEY, response.accessToken);
 
     this.isLoggedIn.set(true);
-    this.currentUser.set(this.getUserFromToken());
   }
 
   private clearAuth(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     this.isLoggedIn.set(false);
-    this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
 
@@ -83,36 +75,6 @@ export class AuthService {
     if (!this.hasToken()) return false;
 
     return true;
-  }
-
-  private getUserFromToken(): UserData | null {
-    const token = this.getToken();
-    if (!token) return null;
-
-    try {
-      const parts = token.split('.');
-      if (parts.length !== 3) {
-        console.error('Token JWT inválido: formato incorreto');
-        return null;
-      }
-
-      const payload = JSON.parse(atob(parts[1]));
-
-      if (payload.exp && Date.now() >= payload.exp * 1000) {
-        console.warn('Token expirado detectado ao decodificar');
-        this.clearAuth();
-        return null;
-      }
-
-      return {
-        email: payload.email || '',
-        fullName: payload.sub || '',
-      };
-    } catch (error) {
-      console.error('Erro ao decodificar token JWT:', error);
-      this.clearAuth();
-      return null;
-    }
   }
 
   private startTokenExpirationCheck(): void {

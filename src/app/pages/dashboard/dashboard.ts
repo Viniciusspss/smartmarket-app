@@ -20,16 +20,11 @@ export class Dashboard implements OnInit {
   protected productService = inject(ProductService);
   protected employeeService = inject(EmployeeService);
   private notificationService = inject(NotificationService);
+  protected topStockProducts = signal<Product[]>([]);
 
   protected qtdPromotions = computed(() =>
     this.products().reduce((count, product) => (product.promoActive ? count + 1 : count), 0)
   );
-
-  protected getTopStockProducts = computed(() => {
-    return this.products()
-      .sort((a, b) => b.stockQuantity - a.stockQuantity)
-      .slice(0, 4);
-  });
 
   ngOnInit(): void {
     this.loadProducts();
@@ -39,7 +34,14 @@ export class Dashboard implements OnInit {
   private loadProducts() {
     this.productService.getAllProducts().subscribe({
       next: (response: any) => {
-        this.products.set(response.products);
+        const products = response.products;
+        this.products.set(products);
+
+        const topProducts = products
+          .sort((a: any, b: any) => b.stockQuantity - a.stockQuantity)
+          .slice(0, 4);
+
+        this.topStockProducts.set(topProducts);
       },
       error: (err) => {
         this.notificationService.showError('Erro', err);

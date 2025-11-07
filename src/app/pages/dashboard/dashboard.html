@@ -14,12 +14,14 @@
             [number]="employees().length.toString()"></app-stats-card>
 
     </div>
+    }
 
+    @if (topStockProducts().length > 0) {
     <div class="flex gap-4">
         <div class="flex flex-col rounded-2xl bg-white p-4 border border-gray-200 gap-4 w-1/2 px-4 py-6">
             <h2 class="text-xl font-semibold">Produtos com maior quantidade de estoque</h2>
             <div class="flex flex-col gap-2">
-                @for (product of getTopStockProducts(); track $index) {
+                @for (product of topStockProducts(); track $index) {
                 <div class="flex w-full justify-between border-b border-gray-100 pb-2">
                     <p>{{product.name}}</p>
                     <p>{{product.stockQuantity}} unidades</p>
@@ -30,10 +32,9 @@
 
         <div class="flex flex-col rounded-2xl bg-white p-4 border border-gray-200 gap-4 w-1/2 px-4 py-6">
             <h2 class="text-xl font-semibold">Distribuição de estoque</h2>
-            <app-donut-chart [products]="getTopStockProducts()"></app-donut-chart>
+            <app-donut-chart [products]="topStockProducts()"></app-donut-chart>
         </div>
     </div>
-
     }
 
 </div>

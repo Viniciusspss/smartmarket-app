@@ -29,10 +29,8 @@ export type ChartOptions = {
 export class DonutChartComponent implements OnInit {
   products = input.required<Product[]>();
 
-  //array de numero
   protected data = computed(() => this.products().map((p) => p.stockQuantity));
 
-  //array de nomes
   protected labels = computed(() => this.products().map((p) => p.name));
 
   colors: string[] = ['#9A7A41', '#2E8B57', '#4682B4', '#DAA520'];

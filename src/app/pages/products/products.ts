@@ -83,7 +83,7 @@ export class Products implements OnInit, AfterViewInit {
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(5)]],
       type: ['', [Validators.required, this.typeValidator.bind(this)]],
-      priceInCents: [0, [Validators.required, Validators.min(1)]],
+      priceInCents: [0, [Validators.required, Validators.min(0.01)]],
       promoInCents: [null],
       promoActive: [false],
       promoStartsAt: [null],
@@ -115,7 +115,12 @@ export class Products implements OnInit, AfterViewInit {
     const value = parseFloat(event.target.value);
     if (!isNaN(value)) {
       const cents = Math.round(value * 100);
-      this.productForm.patchValue({ priceInCents: cents }, { emitEvent: false });
+      this.productForm.patchValue(
+        {
+          priceInCents: value,
+        },
+        { emitEvent: false, onlySelf: true }
+      );
     }
   }
 
@@ -123,7 +128,12 @@ export class Products implements OnInit, AfterViewInit {
     const value = parseFloat(event.target.value);
     if (!isNaN(value)) {
       const cents = Math.round(value * 100);
-      this.productForm.patchValue({ promoInCents: cents }, { emitEvent: false });
+      this.productForm.patchValue(
+        {
+          promoInCents: value,
+        },
+        { emitEvent: false, onlySelf: true }
+      );
     }
   }
 
@@ -141,6 +151,7 @@ export class Products implements OnInit, AfterViewInit {
 
     this.productForm.reset({
       priceInCents: 0,
+      promoInCents: null,
       promoActive: false,
       stockQuantity: 0,
       expiresAt: defaultExpiresAt.toISOString().split('T')[0],
@@ -165,11 +176,11 @@ export class Products implements OnInit, AfterViewInit {
       name: formValue.name,
       description: formValue.description,
       type: formValue.type,
-      priceInCents: formValue.priceInCents,
+      priceInCents: Math.round(formValue.priceInCents * 100),
       promoActive: formValue.promoActive,
       stockQuantity: formValue.stockQuantity,
       expiresAt: formatDate(formValue.expiresAt),
-      ...(formValue.promoInCents && { promoInCents: formValue.promoInCents }),
+      ...(formValue.promoInCents && { promoInCents: Math.round(formValue.promoInCents * 100) }),
       ...(formValue.promoStartsAt && { promoStartsAt: formatDateTime(formValue.promoStartsAt) }),
       ...(formValue.promoEndsAt && { promoEndsAt: formatDateTime(formValue.promoEndsAt) }),
     };
@@ -210,9 +221,9 @@ export class Products implements OnInit, AfterViewInit {
       name: product.name,
       description: product.description,
       type: product.type,
-      priceInCents: product.priceInCents,
+      priceInCents: product.priceInCents / 100,
       promoActive: product.promoActive,
-      promoInCents: product.promoInCents,
+      promoInCents: product.promoInCents ? product.promoInCents / 100 : null,
       promoStartsAt: product.promoStartsAt
         ? new Date(product.promoStartsAt).toISOString().slice(0, 16)
         : null,

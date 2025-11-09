@@ -3,8 +3,8 @@
         <h2 class="font-semibold text-lg">{{ name() }}</h2>
 
         <div class="flex items-center gap-2 text-sm">
-            <span class="text-gray-500 line-through">R${{ originalPrice() }}</span>
-            <span class="font-bold text-green-600">R${{ promotionalPrice() }}</span>
+            <span class="text-gray-500 line-through">R${{ originalPrice() / 100 }}</span>
+            <span class="font-bold text-green-600">R${{ promotionalPrice() / 100 }}</span>
         </div>
 
         <p class="text-gray-500 text-sm">

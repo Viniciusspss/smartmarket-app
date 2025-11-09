@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Employee } from '../../shared/models/employee';
 import { EmployeeService } from '../../service/employee.service';
 import { NotificationService } from '../../service/notification.service';
+import { MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-employees',
@@ -23,11 +24,13 @@ import { NotificationService } from '../../service/notification.service';
     MatTooltipModule,
     ReactiveFormsModule,
     CommonModule,
+    MatDialogContent,
+    MatDialogActions,
   ],
   templateUrl: './employees.html',
 })
 export class Employees implements OnInit, AfterViewInit {
-  protected displayedColumns: string[] = ['id', 'name', 'cpf', 'age', 'jobTitle'];
+  protected displayedColumns: string[] = ['id', 'name', 'cpf', 'age', 'jobTitle', 'actions'];
   protected dataSource = new MatTableDataSource<Employee>([]);
   private employeeService = inject(EmployeeService);
   protected employeeForm!: FormGroup;
@@ -35,10 +38,13 @@ export class Employees implements OnInit, AfterViewInit {
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
 
-  protected readonly allowedRoles = [
-    { value: 'Admin', label: 'Administrador' },
-    { value: 'User', label: 'Funcionário' },
-  ];
+  protected isEditing = signal<boolean>(false);
+  protected editingEmployeeId = signal<string | null>(null);
+
+  protected deleteModalOpen = signal<boolean>(false);
+  private employeeToDeleteId = signal<string | null>(null);
+
+  protected readonly allowedRoles = [{ value: 'User', label: 'Funcionário' }];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -54,10 +60,7 @@ export class Employees implements OnInit, AfterViewInit {
   private initForm(): void {
     this.employeeForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
       cpf: ['', [Validators.required, this.cpfValidator]],
-      phone: ['', [Validators.required]],
-      role: ['', [Validators.required]],
       age: [null, [Validators.min(18), Validators.max(100)]],
       jobTitle: [''],
     });
@@ -80,14 +83,12 @@ export class Employees implements OnInit, AfterViewInit {
   private loadEmployees(): void {
     this.employeeService.getAllEmployees().subscribe({
       next: (response: any) => {
-        console.log(response);
         const employeeList = Array.isArray(response) ? response : response.employees ?? [];
 
         this.dataSource.data = employeeList;
         this.dataSource._updateChangeSubscription();
       },
       error: (err) => {
-        console.error('Erro ao carregar funcionários:', err);
         this.notificationService.showError(
           'Erro ao carregar funcionários',
           this.getErrorMessage(err)
@@ -137,56 +138,60 @@ export class Employees implements OnInit, AfterViewInit {
   closeModal(): void {
     this.showModal.set(false);
     this.employeeForm.reset();
-  }
-
-  private addEmployee(newEmployee: Employee): void {
-    console.log('Adicionando funcionário à tabela:', newEmployee);
-
-    const currentData = this.dataSource.data;
-    const newData = [...currentData, newEmployee];
-
-    this.dataSource.data = newData;
-    this.dataSource._updateChangeSubscription();
-
-    console.log('DataSource após adição:', this.dataSource.data);
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.isEditing.set(false);
+    this.editingEmployeeId.set(null);
   }
 
   onSubmit(): void {
     if (this.employeeForm.valid) {
       const formValue = this.employeeForm.value;
 
-      console.log('Form Values:', formValue);
+      if (this.isEditing() && this.editingEmployeeId()) {
+        const updateEmployeeData = {
+          name: formValue.name,
+          cpf: formValue.cpf,
+          age: formValue.age,
+          jobTitle: formValue.jobTitle,
+        };
 
-      const newEmployeeData = {
-        name: formValue.name,
-        email: formValue.email,
-        cpf: formValue.cpf,
-        phone: formValue.phone,
-        role: formValue.role,
-        ...(formValue.age && { age: formValue.age }),
-        ...(formValue.jobTitle && { jobTitle: formValue.jobTitle }),
-        createdAt: new Date(),
-      };
+        this.employeeService
+          .updateEmployee(this.editingEmployeeId()!, updateEmployeeData)
+          .subscribe({
+            next: () => {
+              this.notificationService.showSuccess('Funcionário atualizado com sucesso!', '');
+              this.loadEmployees();
+              this.closeModal();
+            },
+            error: (err) => {
+              this.notificationService.showError(
+                'Erro ao atualizar funcionário',
+                this.getErrorMessage(err)
+              );
+            },
+          });
+      } else {
+        const newEmployeeData = {
+          name: formValue.name,
+          cpf: formValue.cpf,
+          age: formValue.age,
+          jobTitle: formValue.jobTitle,
+          createdAt: new Date(),
+        };
 
-      console.log('Enviando funcionário para API:', newEmployeeData);
-
-      this.employeeService.createEmployee(newEmployeeData).subscribe({
-        next: (response) => {
-          console.log('Resposta da API:', response);
-          this.addEmployee(response);
-          this.closeModal();
-          this.notificationService.showSuccess('Funcionário criado com sucesso!', '');
-        },
-        error: (err) => {
-          console.error('Error creating employee:', err);
-          const errorMessage = this.getErrorMessage(err);
-          this.notificationService.showError('Falha na criação do funcionário', errorMessage);
-        },
-      });
+        this.employeeService.createEmployee(newEmployeeData).subscribe({
+          next: () => {
+            this.notificationService.showSuccess('Funcionário criado com sucesso!', '');
+            this.loadEmployees();
+            this.closeModal();
+          },
+          error: (err) => {
+            this.notificationService.showError(
+              'Erro ao criar funcionário',
+              this.getErrorMessage(err)
+            );
+          },
+        });
+      }
     } else {
       this.markFormGroupTouched();
       this.notificationService.showError(
@@ -220,5 +225,68 @@ export class Employees implements OnInit, AfterViewInit {
   getRoleLabel(roleValue: string): string {
     const role = this.allowedRoles.find((r) => r.value === roleValue);
     return role ? role.label : roleValue;
+  }
+
+  editEmployee(employee: Employee): void {
+    this.isEditing.set(true);
+    this.editingEmployeeId.set(employee.employeeId);
+
+    this.employeeForm.patchValue({
+      name: employee.name,
+      cpf: employee.cpf,
+      age: employee.age,
+      jobTitle: employee.jobTitle,
+    });
+
+    this.showModal.set(true);
+  }
+
+  deleteEmployee(employeeId: string): void {
+    if (confirm('Tem certeza que deseja excluir este funcionário?')) {
+      this.employeeService.deleteEmployee(employeeId).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Funcionário removido com sucesso!', '');
+          this.loadEmployees();
+        },
+        error: (err) => {
+          this.notificationService.showError(
+            'Erro ao excluir funcionário',
+            this.getErrorMessage(err)
+          );
+        },
+      });
+    }
+  }
+
+  toggleDeleteModal(): void {
+    this.deleteModalOpen.update((prev) => !prev);
+    if (!this.deleteModalOpen()) {
+      this.employeeToDeleteId.set(null);
+    }
+  }
+
+  openDeleteModal(employeeId: string): void {
+    this.employeeToDeleteId.set(employeeId);
+    this.deleteModalOpen.set(true);
+  }
+
+  confirmDelete(): void {
+    const employeeId = this.employeeToDeleteId();
+    if (!employeeId) return;
+
+    this.employeeService.deleteEmployee(employeeId).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Funcionário removido com sucesso!', '');
+        this.loadEmployees();
+        this.toggleDeleteModal();
+      },
+      error: (err) => {
+        this.notificationService.showError(
+          'Erro ao excluir funcionário',
+          this.getErrorMessage(err)
+        );
+        this.toggleDeleteModal();
+      },
+    });
   }
 }

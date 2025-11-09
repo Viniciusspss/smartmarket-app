@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Employee, EmployeeResponse } from '../shared/models/employee';
+import { Employee } from '../shared/models/employee';
 
 @Injectable({
   providedIn: 'root',
@@ -10,12 +10,12 @@ export class EmployeeService {
   private http = inject(HttpClient);
   private baseUrl = 'http://localhost:8080/api/employees';
 
-  getAllEmployees(): Observable<EmployeeResponse[]> {
-    return this.http.get<EmployeeResponse[]>(this.baseUrl);
+  getAllEmployees(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(this.baseUrl);
   }
 
-  getEmployeeById(employeeId: string): Observable<EmployeeResponse> {
-    return this.http.get<EmployeeResponse>(`${this.baseUrl}/${employeeId}`);
+  getEmployeeById(employeeId: string): Observable<Employee> {
+    return this.http.get<Employee>(`${this.baseUrl}/${employeeId}`);
   }
 
   createEmployee(employee: Omit<Employee, 'employeeId'>): Observable<Employee> {

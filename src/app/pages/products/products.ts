@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Product } from '../../shared/models/product';
 import { ProductService } from '../../service/product.service';
 import { NotificationService } from '../../service/notification.service';
+import { MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-products',
@@ -23,6 +24,8 @@ import { NotificationService } from '../../service/notification.service';
     MatTooltipModule,
     ReactiveFormsModule,
     CommonModule,
+    MatDialogContent,
+    MatDialogActions,
   ],
   templateUrl: './products.html',
 })
@@ -35,13 +38,25 @@ export class Products implements OnInit, AfterViewInit {
     'promoActive',
     'stockQuantity',
     'expiresAt',
+    'actions',
   ];
+
   protected dataSource = new MatTableDataSource<Product>([]);
   private productService = inject(ProductService);
-  protected productForm!: FormGroup;
-  protected showModal = signal<boolean>(false);
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
+
+  protected productForm!: FormGroup;
+  protected showModal = signal<boolean>(false);
+
+  protected isEditing = signal<boolean>(false);
+  protected editingProductId = signal<string | null>(null);
+
+  protected deleteModalOpen = signal<boolean>(false);
+  private productToDeleteId = signal<string | null>(null);
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  protected today = new Date().toISOString().split('T')[0];
 
   protected readonly allowedTypes = [
     { value: 'FOOD', label: 'Alimentício (FOOD)' },
@@ -50,10 +65,6 @@ export class Products implements OnInit, AfterViewInit {
     { value: 'HYGIENE', label: 'Higiene (HYGIENE)' },
     { value: 'OTHER', label: 'Outro (OTHER)' },
   ];
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  protected today = new Date().toISOString().split('T')[0];
 
   ngOnInit(): void {
     this.initForm();
@@ -83,29 +94,18 @@ export class Products implements OnInit, AfterViewInit {
   }
 
   private typeValidator(control: any): { [key: string]: any } | null {
-    const value = control.value;
-    if (!value) {
-      return { required: true };
-    }
-
-    const allowedValues = this.allowedTypes.map((type) => type.value);
-    if (!allowedValues.includes(value)) {
-      return { invalidType: true };
-    }
-
-    return null;
+    const allowed = this.allowedTypes.map((t) => t.value);
+    return !allowed.includes(control.value) ? { invalidType: true } : null;
   }
 
   private loadProducts(): void {
     this.productService.getAllProducts().subscribe({
       next: (response: any) => {
-        const productList = Array.isArray(response) ? response : response.products ?? [];
-
-        this.dataSource.data = productList;
+        const products = Array.isArray(response) ? response : response.products ?? [];
+        this.dataSource.data = products;
         this.dataSource._updateChangeSubscription();
       },
       error: (err) => {
-        console.error('Erro ao carregar produtos:', err);
         this.notificationService.showError('Erro ao carregar produtos', this.getErrorMessage(err));
       },
     });
@@ -133,6 +133,9 @@ export class Products implements OnInit, AfterViewInit {
 
   closeModal(): void {
     this.showModal.set(false);
+    this.isEditing.set(false);
+    this.editingProductId.set(null);
+
     const defaultExpiresAt = new Date();
     defaultExpiresAt.setDate(defaultExpiresAt.getDate() + 30);
 
@@ -144,104 +147,117 @@ export class Products implements OnInit, AfterViewInit {
     });
   }
 
-  private addProduct(newProduct: Product): void {
-    console.log('Adicionando produto à tabela:', newProduct);
-
-    const currentData = this.dataSource.data;
-    const newData = [...currentData, newProduct];
-
-    this.dataSource.data = newData;
-    this.dataSource._updateChangeSubscription();
-
-    console.log('DataSource após adição:', this.dataSource.data);
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
   onSubmit(): void {
-    if (this.productForm.valid) {
-      const formValue = this.productForm.value;
+    if (this.productForm.invalid) {
+      this.notificationService.showError(
+        'Formulário inválido',
+        'Verifique os campos obrigatórios.'
+      );
+      return;
+    }
 
-      console.log('Form Values:', formValue);
+    const formValue = this.productForm.value;
 
-      const formatDate = (dateString: string): Date => {
-        return new Date(dateString + 'T00:00:00');
-      };
+    const formatDate = (dateString: string): Date => new Date(dateString + 'T00:00:00');
+    const formatDateTime = (dateTimeString: string): Date => new Date(dateTimeString);
 
-      const formatDateTime = (dateTimeString: string): Date => {
-        return new Date(dateTimeString);
-      };
+    const productData: Product = {
+      name: formValue.name,
+      description: formValue.description,
+      type: formValue.type,
+      priceInCents: formValue.priceInCents,
+      promoActive: formValue.promoActive,
+      stockQuantity: formValue.stockQuantity,
+      expiresAt: formatDate(formValue.expiresAt),
+      ...(formValue.promoInCents && { promoInCents: formValue.promoInCents }),
+      ...(formValue.promoStartsAt && { promoStartsAt: formatDateTime(formValue.promoStartsAt) }),
+      ...(formValue.promoEndsAt && { promoEndsAt: formatDateTime(formValue.promoEndsAt) }),
+    };
 
-      const newProduct: Product = {
-        name: formValue.name,
-        description: formValue.description,
-        type: formValue.type,
-        priceInCents: formValue.priceInCents,
-        promoActive: formValue.promoActive,
-        stockQuantity: formValue.stockQuantity,
-        expiresAt: formatDate(formValue.expiresAt),
-        ...(formValue.promoInCents && { promoInCents: formValue.promoInCents }),
-        ...(formValue.promoStartsAt && { promoStartsAt: formatDateTime(formValue.promoStartsAt) }),
-        ...(formValue.promoEndsAt && { promoEndsAt: formatDateTime(formValue.promoEndsAt) }),
-      };
-
-      console.log('Enviando produto para API:', newProduct);
-
-      this.productService.createProduct(newProduct).subscribe({
-        next: (response) => {
-          console.log('Resposta da API:', response);
-          this.addProduct(response);
+    if (this.isEditing() && this.editingProductId()) {
+      this.productService.updateProduct(this.editingProductId()!, productData).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Produto atualizado com sucesso!', '');
+          this.loadProducts();
           this.closeModal();
-          this.notificationService.showSuccess('Produto criado com sucesso!', '');
         },
         error: (err) => {
-          console.error('Error creating product:', err);
-          const errorMessage = this.getErrorMessage(err);
-          this.notificationService.showError('Falha na criação do produto', errorMessage);
+          this.notificationService.showError(
+            'Erro ao atualizar produto',
+            this.getErrorMessage(err)
+          );
         },
       });
     } else {
-      this.markFormGroupTouched();
-      this.notificationService.showError(
-        'Formulário inválido',
-        'Por favor, preencha todos os campos obrigatórios corretamente.'
-      );
+      this.productService.createProduct(productData).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Produto criado com sucesso!', '');
+          this.loadProducts();
+          this.closeModal();
+        },
+        error: (err) => {
+          this.notificationService.showError('Erro ao criar produto', this.getErrorMessage(err));
+        },
+      });
     }
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.productForm.controls).forEach((key) => {
-      const control = this.productForm.get(key);
-      control?.markAsTouched();
+  editProduct(product: Product): void {
+    this.isEditing.set(true);
+    this.editingProductId.set(product.productId!);
+
+    this.productForm.patchValue({
+      name: product.name,
+      description: product.description,
+      type: product.type,
+      priceInCents: product.priceInCents,
+      promoActive: product.promoActive,
+      promoInCents: product.promoInCents,
+      promoStartsAt: product.promoStartsAt
+        ? new Date(product.promoStartsAt).toISOString().slice(0, 16)
+        : null,
+      promoEndsAt: product.promoEndsAt
+        ? new Date(product.promoEndsAt).toISOString().slice(0, 16)
+        : null,
+      stockQuantity: product.stockQuantity,
+      expiresAt: product.expiresAt ? new Date(product.expiresAt).toISOString().split('T')[0] : '',
+    });
+
+    this.showModal.set(true);
+  }
+
+  openDeleteModal(productId: string): void {
+    this.productToDeleteId.set(productId);
+    this.deleteModalOpen.set(true);
+  }
+
+  toggleDeleteModal(): void {
+    this.deleteModalOpen.update((prev) => !prev);
+    if (!this.deleteModalOpen()) {
+      this.productToDeleteId.set(null);
+    }
+  }
+
+  confirmDelete(): void {
+    const productId = this.productToDeleteId();
+    if (!productId) return;
+
+    this.productService.deleteProduct(productId).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Produto removido com sucesso!', '');
+        this.loadProducts();
+        this.toggleDeleteModal();
+      },
+      error: (err) => {
+        this.notificationService.showError('Erro ao excluir produto', this.getErrorMessage(err));
+        this.toggleDeleteModal();
+      },
     });
   }
 
   private getErrorMessage(error: any): string {
-    if (error.error?.message) {
-      return error.error.message;
-    }
-    if (error.message) {
-      return error.message;
-    }
+    if (error.error?.message) return error.error.message;
+    if (error.message) return error.message;
     return 'Erro desconhecido';
-  }
-
-  refreshTable(): void {
-    this.loadProducts();
-  }
-
-  centsToReais(cents: number): number {
-    return cents / 100;
-  }
-
-  reaisToCents(reais: number): number {
-    return Math.round(reais * 100);
-  }
-
-  getTypeLabel(typeValue: string): string {
-    const type = this.allowedTypes.find((t) => t.value === typeValue);
-    return type ? type.label : typeValue;
   }
 }

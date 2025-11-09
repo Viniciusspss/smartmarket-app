@@ -241,23 +241,6 @@ export class Employees implements OnInit, AfterViewInit {
     this.showModal.set(true);
   }
 
-  deleteEmployee(employeeId: string): void {
-    if (confirm('Tem certeza que deseja excluir este funcionário?')) {
-      this.employeeService.deleteEmployee(employeeId).subscribe({
-        next: () => {
-          this.notificationService.showSuccess('Funcionário removido com sucesso!', '');
-          this.loadEmployees();
-        },
-        error: (err) => {
-          this.notificationService.showError(
-            'Erro ao excluir funcionário',
-            this.getErrorMessage(err)
-          );
-        },
-      });
-    }
-  }
-
   toggleDeleteModal(): void {
     this.deleteModalOpen.update((prev) => !prev);
     if (!this.deleteModalOpen()) {

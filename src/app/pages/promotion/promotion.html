@@ -6,13 +6,11 @@
         </div>
 
     </div>
-
-
     <div class="grid grid-cols-4 gap-2">
         @if(promotionProducts().length > 0) {
         @for (product of promotionProducts(); track $index) {
         <app-promotion-card [name]="product.name" [originalPrice]="product.priceInCents"
-            [promotionalPrice]="product.promoInCents!" [active]="product.promoActive"></app-promotion-card>
+            [promotionalPrice]="product.promoInCents!"></app-promotion-card>
         }
         }
     </div>

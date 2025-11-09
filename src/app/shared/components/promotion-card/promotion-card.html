@@ -1,5 +1,4 @@
-<div class="w-full max-w-md p-4 rounded-2xl shadow-md bg-white flex justify-between  border"
-    [class.border-green-400]="isActive()" [class.border-gray-300]="!isActive()">
+<div class="w-full max-w-md p-4 rounded-2xl shadow-md bg-white flex justify-between border border-green-400">
     <div class="flex flex-col gap-4">
         <h2 class="font-semibold text-lg">{{ name() }}</h2>
 
@@ -12,17 +11,10 @@
             Desconto de {{ discountPercentage }}%
         </p>
 
-        <span *ngIf="isActive()"
-            class="inline-block bg-green-100 text-green-600 font-medium text-xs px-2 py-1 rounded-md w-fit">
+        <span class="inline-block bg-green-100 text-green-600 font-medium text-xs px-2 py-1 rounded-md w-fit">
             Ativada
         </span>
 
-        <span *ngIf="!isActive()"
-            class="inline-block bg-gray-200 text-gray-600 font-medium text-xs px-2 py-1 rounded-md w-fit">
-            Desativada
-        </span>
     </div>
 
-    <mat-slide-toggle color="primary" [checked]="isActive()" (change)="togglePromotion()">
-    </mat-slide-toggle>
 </div>
